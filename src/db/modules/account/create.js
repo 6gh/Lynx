@@ -3,7 +3,7 @@ const Account = require("../../models/account");
 const hashPassword = require("../password/hash");
 
 module.exports = async ({
-    username, email, password, role,
+    username, email, password, role, quota,
 }) => {
     try {
         const account = new Account({
@@ -13,6 +13,10 @@ module.exports = async ({
             email,
             role,
             secret: null,
+            links: {
+                count: 0,
+                quota,
+            },
             allowAutomaticLogin: false,
             twoFactorAuthentication: {
                 enabled: false,

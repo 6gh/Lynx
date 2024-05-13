@@ -2,6 +2,7 @@ const { v4: uuid4 } = require("uuid");
 const Link = require("../../models/link");
 const getLink = require("./get");
 const { url: validUrl } = require("../valid");
+const Account = require("../../models/account");
 
 const chars = {
     alpha: "abcdefghijklmnopqrstuvwxyz",
@@ -83,11 +84,11 @@ module.exports = async ({ author, slug: providedSlug, destination }) => {
 
     const linkCount = await Link.count({ author: author.id });
 
-    if (linkCount >= author.quota) {
+    if (author.links.quota && linkCount >= author.links.quota) {
         return [
             null,
             {
-                message: "You have reached your link quota and cannot make more",
+                message: "You have reached your link quota. Please delete some links or request for a larger quota.",
                 code: 403,
             },
         ];
@@ -104,6 +105,8 @@ module.exports = async ({ author, slug: providedSlug, destination }) => {
     });
 
     await link.save();
+
+    await Account.findOneAndUpdate({ id: author.id }, { $inc: { "links.count": 1 } });
 
     link.account = author.username;
 

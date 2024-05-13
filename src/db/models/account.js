@@ -6,7 +6,10 @@ const schema = new mongoose.Schema({
     password: String,
     email: String,
     role: String, // owner || admin || standard
-    quota: Number, // must be > 0, undefined = unlimited
+    links: {
+        count: Number, // amount of links a user has made
+        quota: Number, // must be > 0, undefined = unlimited
+    },
     secret: String,
     allowAutomaticLogin: Boolean,
     twoFactorAuthentication: {

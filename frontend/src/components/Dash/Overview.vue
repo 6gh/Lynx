@@ -3,6 +3,12 @@
         <div class="header">
             <div class="title">
                 <h1>Lynx</h1>
+                <h2>
+                    You have {{ account.account.links.count }} links
+                    <template v-if="account.account.links.quota">
+                        out of a max of {{ account.account.links.quota }}
+                    </template>
+                </h2>
             </div>
             <div class="actions">
                 <div class="icon refresh">
@@ -48,9 +54,6 @@
                 </button>
                 <button @click="popups.addPopup('CreateLink', {})">
                     Add Link
-                    <template v-if="account.account.quota">
-                        ({{ account.account.quota }} Max)
-                    </template>
                 </button>
             </div>
             <div class="sort">
@@ -289,7 +292,9 @@ export default {
             });
 
             if (response.success) {
+                console.log(response.result.link);
                 this.newLink.response = response.result.link;
+                console.log(this.account);
             } else {
                 this.newLink.data.error = response.message;
             }
@@ -451,9 +456,17 @@ export default {
         justify-content: space-between;
         align-items: center;
         .title {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            gap: 0.3rem;
             h1 {
                 font-size: 3rem;
                 font-weight: 500;
+            }
+            h2 {
+                font-size: 1rem;
+                font-weight: 400;
             }
         }
         .actions {
@@ -521,6 +534,7 @@ export default {
                             border: 0;
                             padding: 0.5rem 1.5rem 0.5rem 0.5rem;
                             background: none;
+                            appearance: none;
                             -webkit-appearance: none;
                             -moz-appearance: none;
                             z-index: 5;

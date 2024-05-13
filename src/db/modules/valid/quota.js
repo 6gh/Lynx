@@ -1,5 +1,11 @@
-module.exports = (quota) => {
-    if (typeof quota !== "number") return false;
+module.exports = (q) => {
+    let quota = q;
+
+    if (quota === undefined) return true; // allow unlimited counts
+
+    if (typeof quota !== "number") {
+        quota = parseInt(q, 10);
+    }
 
     if (Number.isNaN(quota)) return false;
 

@@ -3,6 +3,7 @@ const path = require("path");
 const account = require("../db/modules/account");
 const Account = require("../db/models/account");
 const CreateSecret = require("../db/modules/secret/create");
+const Link = require("../db/models/link");
 
 module.exports = async () => {
     const accounts = await account.countAccounts();
@@ -53,6 +54,21 @@ module.exports = async () => {
                 },
             ],
         );
+
+        (await Account.find({ links: { $exists: false } })).map(async (acc) => {
+            const linkCount = await Link.count({ author: acc.id });
+
+            await acc.updateOne({
+                $set: {
+                    links: {
+                        count: linkCount,
+                        quota: process.env.URL_QUOTA,
+                    },
+                },
+            });
+
+            return acc;
+        });
     }
 
     // Remove tmp files

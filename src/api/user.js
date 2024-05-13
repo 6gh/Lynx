@@ -415,13 +415,15 @@ router.patch("/quota", requireAccountValue({ role: ["owner", "admin"] }), requir
         const { userID } = req.body.user;
         let { quota } = req.body.user;
 
-        if (typeof quota === "string") quota = parseInt(quota, 10);
+        if (quota) {
+            if (typeof quota === "string") quota = parseInt(quota, 10);
 
-        if (!valid.quota(quota)) {
-            return res.status(417).json({
-                success: false,
-                message: "Invalid quota",
-            });
+            if (!valid.quota(quota)) {
+                return res.status(417).json({
+                    success: false,
+                    message: "Invalid quota",
+                });
+            }
         }
 
         const [user, userError] = await account.get.byID({ id: userID });

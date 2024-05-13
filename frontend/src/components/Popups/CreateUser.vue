@@ -44,6 +44,12 @@
                 validation-label="Password confirmation"
             />
             <FormKit
+                type="number"
+                name="quota"
+                label="User Quota"
+                min="0"
+            />
+            <FormKit
                 type="checkbox"
                 name="options"
                 label="Options"
@@ -82,7 +88,7 @@ export default {
     methods: {
         async createUser(data) {
             const {
-                username, email, password, options,
+                username, email, password, options, quota,
             } = data;
 
             const userData = {
@@ -90,6 +96,7 @@ export default {
                 email,
                 password,
                 role: options.includes("admin") ? "admin" : "standard",
+                quota: (quota === "" || quota === "0") ? process.env.URL_QUOTA : quota,
             };
 
             const verificationData = await this.popups.addPopup("Verify", { async: true });

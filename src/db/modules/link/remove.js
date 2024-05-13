@@ -1,3 +1,4 @@
+const Account = require("../../models/account");
 const Link = require("../../models/link");
 
 module.exports = async ({ ids, account }) => {
@@ -19,11 +20,12 @@ module.exports = async ({ ids, account }) => {
         }
     }
     try {
-        await Link.deleteMany({
+        const result = await Link.deleteMany({
             id: {
                 $in: ids,
             },
         });
+        await Account.updateOne({ id: account.id }, { $inc: { "links.count": -result.deletedCount } });
         return [true, null];
     } catch (e) {
         console.log(e);

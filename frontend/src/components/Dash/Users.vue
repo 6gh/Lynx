@@ -46,7 +46,7 @@
                     </td>
                     <td :class="canUpdate(user) ? 'editable' : ''" @click="updateQuota(user)">
                         <font-awesome-icon :icon="['fas', 'user']" class="mobile-icon"/>
-                        <span>{{ user.quota ?? "None" }}</span>
+                        <span>{{ user.links.quota ?? "None" }}</span>
                         <font-awesome-icon :icon="['fas', 'pencil']" class="edit-pencil" />
                     </td>
                     <td
