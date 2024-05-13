@@ -6,6 +6,7 @@ const schema = new mongoose.Schema({
     password: String,
     email: String,
     role: String, // owner || admin || standard
+    quota: Number, // must be > 0, undefined = unlimited
     secret: String,
     allowAutomaticLogin: Boolean,
     twoFactorAuthentication: {

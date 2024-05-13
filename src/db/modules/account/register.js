@@ -3,19 +3,21 @@ const valid = require("../valid");
 const createAccount = require("./create");
 
 module.exports = async ({
-    email, username, password, role,
+    email, username, password, role, quota,
 }) => {
     const invalid = {
         email: false,
         username: false,
         password: false,
+        quota: false,
     };
 
     invalid.email = !valid.email(email);
     invalid.username = !valid.username(username);
     invalid.password = !valid.password(password);
+    invalid.quota = !valid.quota(quota);
 
-    if (invalid.password || invalid.username || invalid.email) {
+    if (invalid.password || invalid.username || invalid.email || invalid.quota) {
         return [
             null,
             {
@@ -55,6 +57,7 @@ module.exports = async ({
         email,
         password,
         role,
+        quota,
     });
 
     if (account) return ["Account created", null];

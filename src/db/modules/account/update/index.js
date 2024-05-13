@@ -4,4 +4,5 @@ module.exports = {
     username: require("./username"),
     role: require("./role"),
     automaticLogin: require("./automatic-login"),
+    quota: require("./quota"),
 };

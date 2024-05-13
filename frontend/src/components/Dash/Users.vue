@@ -11,6 +11,7 @@
                 <th>Email</th>
                 <th>Password</th>
                 <th>Role</th>
+                <th>Quota</th>
                 <th>Secret</th>
                 <th class="add-user" align="right">
                     <font-awesome-icon :icon="['fas', 'fa-circle-plus']" @click="createUser" />
@@ -42,6 +43,11 @@
                             @click="updateRoleMenu($event, user)"
                             class="update-role-icon"
                         />
+                    </td>
+                    <td :class="canUpdate(user) ? 'editable' : ''" @click="updateQuota(user)">
+                        <font-awesome-icon :icon="['fas', 'user']" class="mobile-icon"/>
+                        <span>{{ user.quota ?? "None" }}</span>
+                        <font-awesome-icon :icon="['fas', 'pencil']" class="edit-pencil" />
                     </td>
                     <td
                         class="user-secret"
@@ -130,6 +136,10 @@ export default {
         },
         async updatePassword(user) {
             const data = await this.popups.addPopup("ChangePassword", { account: user.id, async: true });
+            this.updateUser(user.id, data.account);
+        },
+        async updateQuota(user) {
+            const data = await this.popups.addPopup("ChangeQuota", { account: user.id, async: true });
             this.updateUser(user.id, data.account);
         },
         async createUser() {

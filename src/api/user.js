@@ -119,8 +119,26 @@ router.post("/", requireVerification, async (req, res) => {
             });
         }
         const {
-            username, email, password, role,
+            username, email, password, role, quota,
         } = req.body.user;
+
+        if (quota && Number.isNaN(quota)) {
+            return res.status(400).json({
+                success: false,
+                message: "Link quota is not a number",
+            });
+        }
+
+        let allowedQuotas = true;
+
+        if (req.account.role === "standard") allowedQuotas = false;
+
+        if (!allowedQuotas && quota !== 0) {
+            return res.status(400).json({
+                success: false,
+                message: "You are not allowed to set a quota for a user",
+            });
+        }
 
         let allowedRoles = ["admin", "standard"];
 
@@ -138,6 +156,7 @@ router.post("/", requireVerification, async (req, res) => {
             username,
             password,
             role,
+            quota,
         });
 
         if (error) {
@@ -161,6 +180,7 @@ router.post("/", requireVerification, async (req, res) => {
     }
 });
 
+// update a user's username
 router.patch("/username", requireFields(["user"]), requireVerification, async (req, res) => {
     if (process.env.DEMO === "true") {
         return res.status(406).json({
@@ -209,6 +229,7 @@ router.patch("/username", requireFields(["user"]), requireVerification, async (r
     }
 });
 
+// update a user's email
 router.patch("/email", requireFields(["user"]), requireVerification, async (req, res) => {
     if (process.env.DEMO === "true") {
         return res.status(406).json({
@@ -257,6 +278,7 @@ router.patch("/email", requireFields(["user"]), requireVerification, async (req,
     }
 });
 
+// update a user's password
 router.patch("/password", requireFields(["user"]), requireVerification, async (req, res) => {
     if (process.env.DEMO === "true") {
         return res.status(406).json({
@@ -305,6 +327,7 @@ router.patch("/password", requireFields(["user"]), requireVerification, async (r
     }
 });
 
+// update a user's role
 router.post("/role", requireAccountValue({ role: ["owner"] }), requireVerification, async (req, res) => {
     if (process.env.DEMO === "true") {
         return res.status(406).json({
@@ -356,6 +379,67 @@ router.post("/role", requireAccountValue({ role: ["owner"] }), requireVerificati
                     message: updatedSelfError.message,
                 });
             }
+        }
+
+        res.status(200).json({
+            success: true,
+            result: {
+                user: updatedUser,
+            },
+        });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error when updating user",
+        });
+    }
+});
+
+// update a user's quota
+router.patch("/quota", requireAccountValue({ role: ["owner", "admin"] }), requireFields(["user"]), requireVerification, async (req, res) => {
+    if (process.env.DEMO === "true") {
+        return res.status(406).json({
+            success: false,
+            message: "Updating of user quotas is not enabled in demo mode.",
+        });
+    }
+    try {
+        if (!req.body.user) {
+            return res.status(400).json({
+                success: false,
+                message: "A user object is required",
+            });
+        }
+
+        const { userID } = req.body.user;
+        let { quota } = req.body.user;
+
+        if (typeof quota === "string") quota = parseInt(quota, 10);
+
+        if (!valid.quota(quota)) {
+            return res.status(417).json({
+                success: false,
+                message: "Invalid quota",
+            });
+        }
+
+        const [user, userError] = await account.get.byID({ id: userID });
+
+        if (!user) {
+            return res.status(userError.code).json({
+                success: false,
+                message: userError.message,
+            });
+        }
+
+        const [updatedUser, updatedUserError] = await account.update.quota({ account: user, quota });
+
+        if (!updatedUser) {
+            return res.status(updatedUserError.code).json({
+                success: false,
+                message: updatedUserError.message,
+            });
         }
 
         res.status(200).json({

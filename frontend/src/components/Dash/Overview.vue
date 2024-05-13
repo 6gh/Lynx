@@ -48,6 +48,9 @@
                 </button>
                 <button @click="popups.addPopup('CreateLink', {})">
                     Add Link
+                    <template v-if="account.account.quota">
+                        ({{ account.account.quota }} Max)
+                    </template>
                 </button>
             </div>
             <div class="sort">

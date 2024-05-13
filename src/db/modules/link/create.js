@@ -81,6 +81,18 @@ module.exports = async ({ author, slug: providedSlug, destination }) => {
         }
     }
 
+    const linkCount = await Link.count({ author: author.id });
+
+    if (linkCount >= author.quota) {
+        return [
+            null,
+            {
+                message: "You have reached your link quota and cannot make more",
+                code: 403,
+            },
+        ];
+    }
+
     const link = new Link({
         id: uuid4(),
         slug,
